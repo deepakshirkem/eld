@@ -1,0 +1,13 @@
+#---GlobalOffsetTableShared.test----------- Shared Library ---------------#
+#BEGIN_COMMENT
+# Verify that _GLOBAL_OFFSET_TABLE_ is emitted with a valid address
+# when building a shared library with no PLT relocations.
+# ELD was incorrectly emitting value 0x0 in this case.
+#END_COMMENT
+#START_TEST
+REQUIRES: x86
+RUN: %clang %clangopts -c %p/Inputs/1.c -o %t1.o -fPIC -ffunction-sections
+RUN: %link %linkopts %t1.o -o %t1.so -shared 2>&1
+RUN: %readelf -s %t1.so | %filecheck %s
+#END_TEST
+CHECK: {{[1-9][0-9a-f]+}}{{.*}}OBJECT{{.*}}LOCAL{{.*}}HIDDEN{{.*}}_GLOBAL_OFFSET_TABLE_
